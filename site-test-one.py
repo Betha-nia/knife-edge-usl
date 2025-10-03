@@ -41,7 +41,7 @@ with tab2:
             novo_ponto = st.text_input("Novo ponto (ex: 2.1, 0.85)", key="input_feixe")
             enviar = st.form_submit_button("Adicionar ponto")
 
-            if enviar:
+            if st.button("Adicionar ponto"):
                 if novo_ponto:
                     try:
                         x, y = map(float, novo_ponto.split(","))
