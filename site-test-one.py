@@ -29,26 +29,27 @@ with tab2:
         st.session_state.dados_feixe = []
     
     #User send the point
-    novo_ponto = st.text_input("New point (ex: 2.1, 0.85)", key="input_feixe")
+    with st.form(key="form_feixe"):
+        novo_ponto = st.text_input("Novo ponto (ex: 2.1, 0.85)", key="input_feixe")
+        enviar = st.form_submit_button("Adicionar ponto")
 
-    if novo_ponto:
-        try:
-            x, y = map(float, novo_ponto.split(","))
-            st.session_state.dados_feixe.append((x, y))
-            st.success(f"Point ({x}, {y}) added!")
-            st.session_state.input_feixe = ""  # Limpa o campo
-        except:
-            st.error("Error! Invalid syntax. Try again.")
+    if enviar and novo_ponto:
+            try:
+                x, y = map(float, novo_ponto.split(","))
+                st.session_state.dados_feixe.append((x, y))
+                st.success(f"Ponto ({x}, {y}) adicionado!")
+            except:
+                st.error("Formato inválido. Use: número, número")
     
     # Exib graph
     if st.session_state.dados_feixe:
         import pandas as pd
-        df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Position (mm)", "Intensity transmitted (%)"])
-        st.write("Data inserted:")
+        df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
+        st.write("Dados inseridos:")
         st.dataframe(df_feixe)
 
-        st.write("Knife-edge Graph")
-        st.line_chart(df_feixe.set_index("Position"))
+        st.write("Gráfico dos pontos:")
+        st.line_chart(df_feixe.set_index("Posição"))
 
 #Tab3: Photon flux
 with tab3:
