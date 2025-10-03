@@ -18,54 +18,70 @@ with tab1:
         Este painel foi criado para facilitar nossos cálculos e visualizações de forma colaborativa.
     """)
 
+# Inicializações globais de session_state usadas pela aba Knife Edge
+if "dados_feixe" not in st.session_state:
+    st.session_state.dados_feixe = []
+# chave para o campo de texto (controlamos o conteúdo através de st.session_state["input_feixe_value"])
+if "input_feixe_value" not in st.session_state:
+    st.session_state.input_feixe_value = ""
+
 # Aba 2: Knife Edge
 with tab2:
     st.header("Knife edge")
     st.write("Write down the points of your knife edge (position, power)")
 
-    # Inicializa os dados e o campo de entrada
-    if "dados_feixe" not in st.session_state:
-        st.session_state.dados_feixe = []
-    if "input_feixe" not in st.session_state:
-        st.session_state.input_feixe = ""
-
-    # Layout em duas colunas
+    # Layout em duas colunas: formulário à esquerda, gráfico à direita
     col1, col2 = st.columns([1, 2])
 
     with col1:
-        # Campo de entrada controlado
+        # Campo de entrada controlado: usamos key fixa e sincronizamos com session_state manualmente
         novo_ponto = st.text_input(
             "Novo ponto (ex: 2.1, 0.85)",
-            value=st.session_state.input_feixe,
+            value=st.session_state.input_feixe_value,
             key="input_feixe_field"
         )
 
+        # Sincroniza o valor digitado com a chave usada internamente
+        # (isso garante que st.session_state.input_feixe_value reflita o campo)
+        if novo_ponto != st.session_state.input_feixe_value:
+            st.session_state.input_feixe_value = novo_ponto
+
         # Botão para adicionar ponto
         if st.button("Adicionar ponto"):
-            if novo_ponto:
-                try:
-                    x, y = map(float, novo_ponto.split(","))
-                    st.session_state.dados_feixe.append((x, y))
-                    st.session_state.input_feixe = ""  # Limpa o campo
-                    st.experimental_rerun()  # Atualiza a interface
-                except:
-                    st.session_state.input_feixe = novo_ponto  # Mantém para correção
-                    st.error("Formato inválido. Use: número, número")
-            else:
+            ponto_texto = st.session_state.input_feixe_value.strip()
+            if not ponto_texto:
                 st.warning("Digite um ponto antes de enviar.")
+            else:
+                # validação simples: deve conter exatamente uma vírgula
+                if ponto_texto.count(",") != 1:
+                    st.warning("Formato inválido. Use: número, número")
+                else:
+                    partes = [p.strip() for p in ponto_texto.split(",")]
+                    try:
+                        x = float(partes[0])
+                        y = float(partes[1])
+                        st.session_state.dados_feixe.append((x, y))
+                        # limpa a variável que mantém o valor do campo e também o campo em tela
+                        st.session_state.input_feixe_value = ""
+                        # força rerun para o campo aparecer limpo imediatamente
+                        st.experimental_rerun()
+                    except ValueError:
+                        st.warning("Formato inválido. Use: número, número")
 
         # Botão para limpar os dados
         if st.button("🧹 Limpar todos os pontos", key="limpar_feixe"):
             st.session_state.dados_feixe = []
             st.success("Todos os pontos foram removidos!")
+            # opcional: limpar também o campo de entrada
+            st.session_state.input_feixe_value = ""
+            st.experimental_rerun()
 
-        # Tabela minimizada
+        # Tabela minimizada e botão de download
         if st.session_state.dados_feixe:
             with st.expander("📋 Mostrar tabela de pontos"):
                 df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
                 st.dataframe(df_feixe)
 
-            # Exportar como .txt
             conteudo_txt = "\n".join([f"{x},{y}" for x, y in st.session_state.dados_feixe])
             st.download_button(
                 label="📁 Baixar dados como .txt",
@@ -75,17 +91,19 @@ with tab2:
             )
 
     with col2:
-        # Gráfico scatter com estética refinada
+        # Gráfico scatter com estética refinada (Times New Roman, tamanho 12) e com bordas fechadas
         if st.session_state.dados_feixe:
             df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
 
             fig = go.Figure()
 
+            # traça pontos e conecta com linha tracejada fechada (se quiser conectar por ordem adicionada)
             fig.add_trace(go.Scatter(
                 x=df_feixe["Posição"],
                 y=df_feixe["Intensidade"],
-                mode='markers',
-                marker=dict(size=8, color='blue'),
+                mode='markers+lines',
+                line=dict(dash='dash', color='red'),
+                marker=dict(size=8, color='red'),
                 name='Pontos'
             ))
 
@@ -122,8 +140,6 @@ with tab2:
             )
 
             st.plotly_chart(fig, use_container_width=False)
-
-
 
 # Aba 3: Photon flux
 with tab3:
