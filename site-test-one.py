@@ -20,8 +20,34 @@ with tab1:
 with tab2:
     st.header("Knife edge")
     st.write("""
-        Knife edge calculator
+        Write down the points of your knife edge (position, power)
     """)
+
+    #Inicialization of the list
+    if "dados_feixe" not in st.session_state:
+        st.session_state.dados_feixe = []
+    
+    #User send the point
+    novo_ponto = st.text_input("New point (ex: 2.1, 0.85)", key="input_feixe")
+
+    if novo_ponto:
+        try:
+            x, y = map(float, novo_ponto.split(","))
+            st.session_state.dados_feixe.append((x, y))
+            st.success(f"Point ({x}, {y}) added!")
+            st.session_state.input_feixe = ""  # Limpa o campo
+        except:
+            st.error("Error! Invalid syntax. Try again.")
+    
+    # Exib graph
+    if st.session_state.dados_feixe:
+        import pandas as pd
+        df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Position (mm)", "Intensity transmitted (%)"])
+        st.write("Data inserted:")
+        st.dataframe(df_feixe)
+
+        st.write("Knife-edge Graph")
+        st.line_chart(df_feixe.set_index("Position"))
 
 #Tab3: Photon flux
 with tab3:
