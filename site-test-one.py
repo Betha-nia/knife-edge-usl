@@ -48,9 +48,12 @@ with tab2:
     # Exibe os dados e o gráfico
     if st.session_state.dados_feixe:
         df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
-        st.write("Dados inseridos:")
-        st.dataframe(df_feixe)
 
+        # Tabela minimizada
+        with st.expander("Mostrar tabela de pontos"):
+            st.dataframe(df_feixe)
+
+        # Gráfico scatter com estética quadrada e sem zoom no scroll
         fig = go.Figure()
 
         fig.add_trace(go.Scatter(
@@ -75,6 +78,15 @@ with tab2:
         )
 
         st.plotly_chart(fig, use_container_width=False)
+
+        # Exporta os dados para .txt e permite download
+        conteudo_txt = "\n".join([f"{x},{y}" for x, y in st.session_state.dados_feixe])
+        st.download_button(
+            label="📁 Baixar dados como .txt",
+            data=conteudo_txt,
+            file_name="dados_knife_edge.txt",
+            mime="text/plain"
+        )
 
 # Aba 3: Photon flux
 with tab3:
