@@ -44,42 +44,42 @@ with tab2:
     
     # Exib graph
     if st.session_state.dados_feixe:
-    df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
-    st.write("Dados inseridos:")
-    st.dataframe(df_feixe)
+        df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
+        st.write("Dados inseridos:")
+        st.dataframe(df_feixe)
 
     # Gráfico scatter com estética quadrada e sem zoom no scroll
-    fig = go.Figure()
+        fig = go.Figure()
 
-    fig.add_trace(go.Scatter(
-        x=df_feixe["Posição"],
-        y=df_feixe["Intensidade"],
-        mode='markers',
-        marker=dict(size=8, color='blue'),
-        name='Pontos'
-    ))
+        fig.add_trace(go.Scatter(
+         x=df_feixe["Posição"],
+         y=df_feixe["Intensidade"],
+         mode='markers',
+         marker=dict(size=8, color='blue'),
+         name='Pontos'
+        ))
 
-    fig.update_layout(
-        title="Gráfico Knife-Edge",
-        xaxis_title="Posição",
-        yaxis_title="Intensidade",
-        autosize=False,
-        width=600,
-        height=600,
-        margin=dict(l=40, r=40, t=40, b=40),
-        xaxis=dict(scaleanchor="y", scaleratio=1),  # Mantém proporção quadrada
-    )
+        fig.update_layout(
+         title="Gráfico Knife-Edge",
+         xaxis_title="Posição",
+         yaxis_title="Intensidade",
+         autosize=False,
+         width=600,
+         height=600,
+         margin=dict(l=40, r=40, t=40, b=40),
+            xaxis=dict(scaleanchor="y", scaleratio=1),  # Mantém proporção quadrada
+        )
 
-    fig.update_layout(
-        dragmode=False,  # Desativa arrastar
-    )
+        fig.update_layout(
+            dragmode=False,  # Desativa arrastar
+        )
 
-    fig.update_layout(
-        xaxis=dict(fixedrange=True),  # Desativa zoom horizontal
-        yaxis=dict(fixedrange=True)   # Desativa zoom vertical
-    )
+        fig.update_layout(
+            xaxis=dict(fixedrange=True),  # Desativa zoom horizontal
+            yaxis=dict(fixedrange=True)   # Desativa zoom vertical
+        )
 
-    st.plotly_chart(fig, use_container_width=False)
+        st.plotly_chart(fig, use_container_width=False)
 
 #Tab3: Photon flux
 with tab3:
