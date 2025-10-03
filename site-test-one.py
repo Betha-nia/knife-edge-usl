@@ -27,66 +27,74 @@ with tab2:
     if "dados_feixe" not in st.session_state:
         st.session_state.dados_feixe = []
 
-    # Botão para limpar os dados
-    if st.button("Limpar todos os pontos", key="limpar_feixe"):
-        st.session_state.dados_feixe = []
-        st.success("Todos os pontos foram removidos!")
+    # Layout em duas colunas
+    col1, col2 = st.columns([1, 2])  # Coluna esquerda menor, direita maior
 
-    # Formulário para adicionar novo ponto
-    with st.form(key="form_feixe"):
-        novo_ponto = st.text_input("Novo ponto (ex: 2.1, 0.85)", key="input_feixe")
-        enviar = st.form_submit_button("Adicionar ponto")
+    with col1:
+        # Botão para limpar os dados
+        if st.button("🧹 Limpar todos os pontos", key="limpar_feixe"):
+            st.session_state.dados_feixe = []
+            st.success("Todos os pontos foram removidos!")
 
-        if enviar and novo_ponto:
-            try:
-                x, y = map(float, novo_ponto.split(","))
-                st.session_state.dados_feixe.append((x, y))
-                st.success(f"Ponto ({x}, {y}) adicionado!")
-            except:
-                st.error("Formato inválido. Use: número, número")
+        # Formulário para adicionar novo ponto
+        with st.form(key="form_feixe"):
+            novo_ponto = st.text_input("Novo ponto (ex: 2.1, 0.85)", key="input_feixe")
+            enviar = st.form_submit_button("Adicionar ponto")
 
-    # Exibe os dados e o gráfico
-    if st.session_state.dados_feixe:
-        df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
+            if enviar and novo_ponto:
+                try:
+                    x, y = map(float, novo_ponto.split(","))
+                    st.session_state.dados_feixe.append((x, y))
+                    st.success(f"Ponto ({x}, {y}) adicionado!")
+                    st.session_state.input_feixe = ""  # Limpa o campo automaticamente
+                except:
+                    st.error("Formato inválido. Use: número, número")
 
         # Tabela minimizada
-        with st.expander("Mostrar tabela de pontos"):
-            st.dataframe(df_feixe)
+        if st.session_state.dados_feixe:
+            with st.expander("📋 Mostrar tabela de pontos"):
+                df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
+                st.dataframe(df_feixe)
 
+            # Exportar como .txt
+            conteudo_txt = "\n".join([f"{x},{y}" for x, y in st.session_state.dados_feixe])
+            st.download_button(
+                label="📁 Baixar dados como .txt",
+                data=conteudo_txt,
+                file_name="dados_knife_edge.txt",
+                mime="text/plain"
+            )
+
+    with col2:
         # Gráfico scatter com estética quadrada e sem zoom no scroll
-        fig = go.Figure()
+        if st.session_state.dados_feixe:
+            df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
 
-        fig.add_trace(go.Scatter(
-            x=df_feixe["Posição"],
-            y=df_feixe["Intensidade"],
-            mode='markers',
-            marker=dict(size=8, color='blue'),
-            name='Pontos'
-        ))
+            fig = go.Figure()
 
-        fig.update_layout(
-            title="Gráfico Knife-Edge",
-            xaxis_title="Posição",
-            yaxis_title="Intensidade",
-            autosize=False,
-            width=600,
-            height=600,
-            margin=dict(l=40, r=40, t=40, b=40),
-            xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=True),
-            yaxis=dict(fixedrange=True),
-            dragmode=False
-        )
+            fig.add_trace(go.Scatter(
+                x=df_feixe["Posição"],
+                y=df_feixe["Intensidade"],
+                mode='markers',
+                marker=dict(size=8, color='blue'),
+                name='Pontos'
+            ))
 
-        st.plotly_chart(fig, use_container_width=False)
+            fig.update_layout(
+                title="Gráfico Knife-Edge",
+                xaxis_title="Posição",
+                yaxis_title="Intensidade",
+                autosize=False,
+                width=600,
+                height=600,
+                margin=dict(l=40, r=40, t=40, b=40),
+                xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=True),
+                yaxis=dict(fixedrange=True),
+                dragmode=False
+            )
 
-        # Exporta os dados para .txt e permite download
-        conteudo_txt = "\n".join([f"{x},{y}" for x, y in st.session_state.dados_feixe])
-        st.download_button(
-            label="📁 Baixar dados como .txt",
-            data=conteudo_txt,
-            file_name="dados_knife_edge.txt",
-            mime="text/plain"
-        )
+            st.plotly_chart(fig, use_container_width=False)
+
 
 # Aba 3: Photon flux
 with tab3:
