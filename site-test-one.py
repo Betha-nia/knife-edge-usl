@@ -17,21 +17,21 @@ with tab1:
     """)
 
 #Tab2: Knife Edge
-with tab1:
+with tab2:
     st.header("Knife edge")
     st.write("""
         Knife edge calculator
     """)
 
 #Tab3: Photon flux
-with tab1:
+with tab3:
     st.header("Photon flux")
     st.write("""
         Set the wavelength and the spot size
     """)
 
 #Tab4: Exciton per dot
-with tab1:
+with tab4:
     st.header("Exciton per dot")
     st.write("""
         Set wavelength
