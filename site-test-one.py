@@ -23,36 +23,41 @@ with tab2:
     st.header("Knife edge")
     st.write("Write down the points of your knife edge (position, power)")
 
-    # Inicializa a lista de dados se necessário
+    # Inicializa os dados e o campo de entrada
     if "dados_feixe" not in st.session_state:
         st.session_state.dados_feixe = []
+    if "input_feixe" not in st.session_state:
+        st.session_state.input_feixe = ""
 
     # Layout em duas colunas
-    col1, col2 = st.columns([1, 2])  # Coluna esquerda menor, direita maior
+    col1, col2 = st.columns([1, 2])
 
     with col1:
+        # Campo de entrada controlado
+        novo_ponto = st.text_input(
+            "Novo ponto (ex: 2.1, 0.85)",
+            value=st.session_state.input_feixe,
+            key="input_feixe_field"
+        )
+
+        # Botão para adicionar ponto
+        if st.button("Adicionar ponto"):
+            if novo_ponto:
+                try:
+                    x, y = map(float, novo_ponto.split(","))
+                    st.session_state.dados_feixe.append((x, y))
+                    st.session_state.input_feixe = ""  # Limpa o campo
+                    st.experimental_rerun()  # Atualiza a interface
+                except:
+                    st.session_state.input_feixe = novo_ponto  # Mantém para correção
+                    st.error("Formato inválido. Use: número, número")
+            else:
+                st.warning("Digite um ponto antes de enviar.")
+
         # Botão para limpar os dados
         if st.button("🧹 Limpar todos os pontos", key="limpar_feixe"):
             st.session_state.dados_feixe = []
             st.success("Todos os pontos foram removidos!")
-
-        # Formulário para adicionar novo ponto
-        with st.form(key="form_feixe"):
-            novo_ponto = st.text_input("Novo ponto (ex: 2.1, 0.85)", key="input_feixe")
-            enviar = st.form_submit_button("Adicionar ponto")
-
-            if enviar:
-                if novo_ponto:
-                    try:
-                        x, y = map(float, novo_ponto.split(","))
-                        st.session_state.dados_feixe.append((x, y))
-                        st.success(f"Ponto ({x}, {y}) adicionado!")
-                        st.session_state.input_feixe = ""  # Limpa o campo automaticamente
-                        st.experimental_rerun()
-                    except:
-                        st.error("Formato inválido. Use: número, número")
-                else:
-                    st.warning("Digite um ponto antes de enviar.")
 
         # Tabela minimizada
         if st.session_state.dados_feixe:
@@ -70,7 +75,7 @@ with tab2:
             )
 
     with col2:
-        # Gráfico scatter com estética quadrada e sem zoom no scroll
+        # Gráfico scatter com estética refinada
         if st.session_state.dados_feixe:
             df_feixe = pd.DataFrame(st.session_state.dados_feixe, columns=["Posição", "Intensidade"])
 
@@ -92,15 +97,32 @@ with tab2:
                 width=600,
                 height=600,
                 margin=dict(l=40, r=40, t=40, b=40),
-                font=dict(family = "Times New Roman", size = 12),
-                xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=True,showline = True,linecolor="gray",mirror=True,ticks="outside",
-                           tickfont=dict(family = "Times New Roman",size = 12)),
-                yaxis=dict(fixedrange=True,showline=True,linewidth=2,linecolor="gray",mirror=True,ticks="outside",
-                           tickfont=dict(family="Times New Roman", size=12)),
+                font=dict(family="Times New Roman", size=12),
+                xaxis=dict(
+                    scaleanchor="y",
+                    scaleratio=1,
+                    fixedrange=True,
+                    showline=True,
+                    linewidth=2,
+                    linecolor='gray',
+                    mirror=True,
+                    ticks='outside',
+                    tickfont=dict(family="Times New Roman", size=12)
+                ),
+                yaxis=dict(
+                    fixedrange=True,
+                    showline=True,
+                    linewidth=2,
+                    linecolor='gray',
+                    mirror=True,
+                    ticks='outside',
+                    tickfont=dict(family="Times New Roman", size=12)
+                ),
                 dragmode=False
             )
 
             st.plotly_chart(fig, use_container_width=False)
+
 
 
 # Aba 3: Photon flux
