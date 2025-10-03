@@ -44,10 +44,11 @@ with tab2:
             if enviar:
                 if novo_ponto:
                     try:
-                        x, y = map(float, novo_ponto.split(";"))
+                        x, y = map(float, novo_ponto.split(","))
                         st.session_state.dados_feixe.append((x, y))
                         st.success(f"Ponto ({x}, {y}) adicionado!")
                         st.session_state.input_feixe = ""  # Limpa o campo automaticamente
+                        st.experimental_rerun()
                     except:
                         st.error("Formato inválido. Use: número, número")
                 else:
@@ -92,9 +93,9 @@ with tab2:
                 height=600,
                 margin=dict(l=40, r=40, t=40, b=40),
                 font=dict(family = "Times New Roman", size = 12),
-                xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=True,showline = True,linecolor="black",mirror=True,ticks="outside",
+                xaxis=dict(scaleanchor="y", scaleratio=1, fixedrange=True,showline = True,linecolor="gray",mirror=True,ticks="outside",
                            tickfont=dict(family = "Times New Roman",size = 12)),
-                yaxis=dict(fixedrange=True,showline=True,linewidth=2,linecolor="black",mirror=True,ticks="outside",
+                yaxis=dict(fixedrange=True,showline=True,linewidth=2,linecolor="gray",mirror=True,ticks="outside",
                            tickfont=dict(family="Times New Roman", size=12)),
                 dragmode=False
             )
